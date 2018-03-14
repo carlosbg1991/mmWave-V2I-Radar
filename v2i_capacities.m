@@ -1,4 +1,7 @@
-function [SNR,Th] = v2i_capacities(distances,TXPOWER,NOISEPOWER,BANDWIDTH,TSLOT)
+function [SNR,Th] = v2i_capacities(distances,conf)
+    TXPOWER = conf.TXPOWER;
+    NOISEPOWER = conf.NOISEPOWER;
+    BANDWIDTH = conf.BANDWIDTH;
     % Received Power Calculation [1]
     % Path loss model
     GTX = 10*log10(4*(180^2)/(3*360*pi));  % Antenna gain at the TX

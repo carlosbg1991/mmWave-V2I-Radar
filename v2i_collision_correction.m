@@ -1,4 +1,4 @@
-function [xInt,vInt,tInt] = v2i_collision_correction(cInitTime,cVel,cLoc,NCARS)
+function [xInt,vInt,tInt] = v2i_collision_correction(cInitTime,cVel,cLoc,NCARS,DEBUG)
     % Contains the intervals at which each car needs to adjust its speed
     % due to collision
     xInt  = num2cell(cLoc);            % Spatial velocity updates (collisions)
@@ -35,7 +35,7 @@ function [xInt,vInt,tInt] = v2i_collision_correction(cInitTime,cVel,cLoc,NCARS)
         end
         % Stop execution if no more collisions are detected
         if prod(isinf(tCol))
-            fprintf('END OF EXECUTION - No more collisions were detected\n');
+            if DEBUG; fprintf('END OF EXECUTION - No more collisions were detected\n'); end
             break;
         end
         % We detect the first collision and we correct the speed
@@ -44,15 +44,17 @@ function [xInt,vInt,tInt] = v2i_collision_correction(cInitTime,cVel,cLoc,NCARS)
         xInt{cID}  = [xInt{cID} xIntUpdate{cID}];  % Update locations
         tInt{cID}  = [tInt{cID} tCol(cID)];        % Update times
         cPass{cID} = [cPass{cID} cIDCol{cID}];     % Update the car cID has passed
-        fprintf('car %d reaches car %d at time %.2f at location %.2f\n', ...
-           cID,cIDCol{cID},tCol(cID),xIntUpdate{cID}(1));
+        if DEBUG
+            fprintf('car %d reaches car %d at time %.2f at location %.2f\n', ...
+                    cID,cIDCol{cID},tCol(cID),xIntUpdate{cID}(1));
+        end
         % Update total time to simTarget. The total time is the product
         % within the intervals xInt and the velocity at each interval (like
         % an Integral). we add 0 as to simulate the end of the simulation.
         cInitTime(cID) = sum(diff([xInt{cID} 0])./vInt{cID});
         % Update the status of the cars behind the car that just collided
         [xInt,vInt,cPass,cInitTime] = update_tail_cars_velocities ...
-                                (cID,xInt,vInt,tInt,cPass,cInitTime,NCARS);
+                                (cID,xInt,vInt,tInt,cPass,cInitTime,NCARS,DEBUG);
     end
 end
 
@@ -126,7 +128,7 @@ function [tCol , xIntUpdate, vIntUpdate, cIDCol] = detect_collision(cID,cIDColLi
     cIDCol = cIDColList(indxCol);
 end
 
-function [xInt,vInt,cPass,cInitTime] = update_tail_cars_velocities(cID,xInt,vInt,tInt,cPass,cInitTime,NCARS)
+function [xInt,vInt,cPass,cInitTime] = update_tail_cars_velocities(cID,xInt,vInt,tInt,cPass,cInitTime,NCARS,DEBUG)
     someoneToUpdate = true;
     cIDUpdate = [];
     delta = 0.5;  % Car length to be corrected in the collision location
@@ -150,8 +152,10 @@ function [xInt,vInt,cPass,cInitTime] = update_tail_cars_velocities(cID,xInt,vInt
             cPass{cIDUpdate} = [cPass{cIDUpdate} cPass{cID}(end)];
             % Update times
             cInitTime(cIDUpdate) = sum(diff([xInt{cIDUpdate} 0])./vInt{cIDUpdate});
-            fprintf('\tcar %d updated by car %d at time %.2f at location %.2f\n', ...
-                cIDUpdate,cID,tInt{cIDUpdate}(end),xInt{cIDUpdate}(end));
+            if DEBUG
+                fprintf('\tcar %d updated by car %d at time %.2f at location %.2f\n', ...
+                        cIDUpdate,cID,tInt{cIDUpdate}(end),xInt{cIDUpdate}(end));
+            end
             % The updated car needs to update its followers
             cID = cIDUpdate;
         else
