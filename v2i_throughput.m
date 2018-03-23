@@ -1,4 +1,4 @@
-function [SNR, Ths] = v2i_throughput(DISTS, TXBEAMWIDTH_AZ, TXBEAMWIDTH_EL, RXBEAMWIDTH_AZ, RXBEAMWIDTH_EL ,TXPOWER ,BANDWIDTH)
+function [SNR, Ths] = v2i_throughput(DISTS, TXBEAMWIDTH_AZ, TXBEAMWIDTH_EL, RXBEAMWIDTH_AZ, RXBEAMWIDTH_EL ,TXPOWER ,BANDWIDTH, PHY)
 %This function returns the maximum achievable throughput for the given
 %inputs, being distance and beamwidth the design parameters. To do so, some
 %simulations were performed in order to characterize the PERvsSNR. 
@@ -8,6 +8,7 @@ function [SNR, Ths] = v2i_throughput(DISTS, TXBEAMWIDTH_AZ, TXBEAMWIDTH_EL, RXBE
 %fullfils the PER requirements and returns as an output the highest
 %throughput that can be achieved. The mapping between throughput and each
 %MCS has been taken from the standard 802.11ad.
+
 
 load('PERvsSNR.mat') %loads the variable"PER_SNR", this matrix contains the PER
 %of each MCS (each row index corresponds to the MCS excepts the 25th,
@@ -29,8 +30,8 @@ min_PER_CONTROL=0.05; %acceptable PER for MCS 0
 %% Random shadowing effect calculation lognormal(0,5.8^2)
 
 
-%SF = random('Normal', 0, 5.8, 1, 1);
-SF=0;
+SF = random('Normal', 0, 5.8, length(DISTS), 1);
+%SF=0;
 
 %% SNR calculation
 
@@ -47,9 +48,10 @@ RXPOWER = TXPOWER + 10*log10(Gtx) - PL + 10*log10(Grx);
 
 SNR = RXPOWER - NOISEPOWER;
 
-%% Find the PER for each MCS in terms of SNR 
+%% 
 
 
+%[min_dist, i_snr]=min(dist(SNR,PER_SNR(26,:)));
 i_mins=[];
 for i=1:length(SNR)
     [min_dist, i_min]=min(dist(SNR(i),PER_SNR(26,:)));
@@ -60,16 +62,46 @@ for i=1:length(SNR)
 end
     
 
+%%%%%%%%%%%%%%%%%%
+
+
 PERs = PER_SNR(1:25,i_mins);
 
-%% Find the feasible MCS and calculate the maximum throughput among the feasible ones
-
 feas_mcs= diag(1:25)*[PERs(1:24,:)<min_PER; PERs(25,:)<min_PER_CONTROL];
+
 m=feas_mcs~=0;
 Ths=feas_mcs;
+%throughput for each MCS, if not feasible, throughput = 0
 Ths(m)=throughput(feas_mcs(m));
-Ths=max(Ths);
+if strcmp(PHY,'SC')
+    Ths=max(Ths(1:12,:));
+elseif strcmp(PHY,'OFDM')
+    Ths = max(Ths(13:24,:));
+elseif strcmp(PHY,'BOTH')
+    Ths = max(Ths);
+end
 
+        
+    
+% 
+% C=num2cell(feas_mcs,1);
+% 
+% for i=1:length(C)
+%     throuputs{i}=max(thoughput(C{i}(C{i}~=0)));
+% end
+% 
+% 
+% if isempty(feas_mcs)
+%     Th=0;
+%     disp(['SNR: ' num2str(SNR) ' -> Communication not feasible']);
+% else
+%     Th=max(throughput(feas_mcs));
+%     if Th == 27.5
+%         disp(['SNR: ' num2str(SNR) ' -> Maximum achievable throughput: ' num2str(Th) ' Mbps using MCS 0' ]);
+%     else
+%         disp(['SNR: ' num2str(SNR) ' -> Maximum achievable throughput: ' num2str(Th) ' Mbps using MCS ' num2str(find(throughput==Th))]);
+% 
+% end
 
 
 end
