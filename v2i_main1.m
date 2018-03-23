@@ -27,7 +27,7 @@ for nSlot = 1:conf.NSIMSLOTS
     distToBS(:,nSlot) = sqrt(LocLaneY^2 + (BSLocX - loc).^2);
     % Calculate throughputs - it only serves for plotting
     [SNRTot(:,nSlot) , ~] = v2i_capacities(distToBS(:,nSlot),conf);
-%     [SNRTot(:,nSlot),ThList] = v2i_throughput(distToBS(:,nSlot),TXBEAMWIDTH_AZ, TXBEAMWIDTH_EL, RXBEAMWIDTH_AZ, RXBEAMWIDTH_EL, TXPOWER, BANDWIDTH);
+%     [SNRTot(:,nSlot), ~] = v2i_throughput(distToBS(:,nSlot),conf);
     % Decide wheather we need to perform radar operations
     if rPATT(nSlot) ~=0
         % Radar operations based on pattern

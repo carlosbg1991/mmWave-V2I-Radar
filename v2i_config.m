@@ -27,6 +27,7 @@ conf.TOT_COV_ANGLE = 120;  % Total Angle covered in degrees
 conf.TOT_COV_DIST = 200;   % Maximum communication range (radar and comms) in meters
 conf.TXPOWER = 20;         % Transmit power in dBm (typical from 0 to 20 dBm)
 conf.NOISEPOWER = -95;     % Noise power in dBm (Typical from -90 to -105 dBm)
+conf.PHY = 'OFDM';         % Transmission mode (OFDM, SC or BOTH)
 conf.N_sectors = conf.TOT_COV_ANGLE / conf.BEAMWIDTH;  % Number of sectors
 
 % RADAR PARAMETERS

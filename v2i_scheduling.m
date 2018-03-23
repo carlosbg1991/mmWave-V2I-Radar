@@ -18,6 +18,7 @@ function [schedOmn,ThTotOmn,schedSys,ThTotSys] = v2i_scheduling(sInt,loc,locSys,
         distToBS(:) = sqrt(LocLaneY^2 + (BSLocX - loc).^2);
         % Compute the SNR that every car would perceive it it was allocated
         [SNRList,THPTList] = v2i_capacities(distToBS,conf);
+%         [SNRList,THPTList] = v2i_throughput(distToBS,conf);
 %         [SNRList,THPTList] = v2i_throughput(distToBS,TXBEAMWIDTH_AZ,TXBEAMWIDTH_EL,RXBEAMWIDTH_AZ,RXBEAMWIDTH_EL,TXPOWER,BANDWIDTH);
         switch conf.POLICY
             case 'GREEDY';  cID = GREEDY_scheduling(cIDCand,SNRList);

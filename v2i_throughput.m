@@ -1,4 +1,12 @@
-function [SNR, Ths] = v2i_throughput(DISTS, TXBEAMWIDTH_AZ, TXBEAMWIDTH_EL, RXBEAMWIDTH_AZ, RXBEAMWIDTH_EL ,TXPOWER ,BANDWIDTH, PHY)
+function [SNR, Ths] = v2i_throughput(DISTS, conf)
+TXBEAMWIDTH_AZ = conf.TXBEAMWIDTH_AZ;
+TXBEAMWIDTH_EL = conf.TXBEAMWIDTH_EL;
+RXBEAMWIDTH_AZ = conf.RXBEAMWIDTH_AZ;
+RXBEAMWIDTH_EL = conf.RXBEAMWIDTH_EL;
+TXPOWER = conf.TXPOWER;
+BANDWIDTH = conf.BANDWIDTH;
+PHY = conf.PHY;
+
 %This function returns the maximum achievable throughput for the given
 %inputs, being distance and beamwidth the design parameters. To do so, some
 %simulations were performed in order to characterize the PERvsSNR. 
